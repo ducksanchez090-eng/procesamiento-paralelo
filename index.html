@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Procesamiento paralelo | Arquitectura de Computadoras</title>
+<style>
+:root{--bg:#070b1a;--card:#121936cc;--tx:#eef1ff;--mut:#a3acd6;--a:#6c8cff;--b:#22d3a6;--c:#ff6b8b;--d:#ffc857}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--tx);line-height:1.65;overflow-x:hidden}
+.blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.28;z-index:-1;animation:fl 14s ease-in-out infinite alternate}
+.b1{width:420px;height:420px;background:var(--a);top:-100px;left:-100px}.b2{width:380px;height:380px;background:var(--b);bottom:-80px;right:-80px;animation-delay:-5s}.b3{width:300px;height:300px;background:var(--c);top:45%;left:55%;animation-delay:-9s}
+@keyframes fl{to{transform:translate(80px,60px) scale(1.2)}}
+#bar{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--a),var(--b),var(--c));z-index:20}
+nav{position:sticky;top:4px;z-index:9;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;padding:10px;margin:0 auto;max-width:760px;background:#0d1330cc;backdrop-filter:blur(10px);border:1px solid #2a3567;border-radius:40px}
+nav a{color:var(--mut);text-decoration:none;padding:6px 13px;border-radius:20px;font-size:14px;transition:.25s}
+nav a:hover{background:var(--a);color:#fff;transform:translateY(-2px)}
+header{text-align:center;padding:70px 20px 40px}
+h1{font-size:clamp(2.2rem,7vw,4.2rem);margin:0;background:linear-gradient(90deg,var(--a),var(--b),var(--c),var(--a));background-size:300%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:gr 6s linear infinite}
+@keyframes gr{to{background-position:300% 0}}
+.typ{font-size:1.25rem;color:var(--d);min-height:2em;margin-top:10px}
+.typ:after{content:"|";animation:bl 1s infinite}@keyframes bl{50%{opacity:0}}
+header p{color:var(--mut);max-width:620px;margin:10px auto}
+.chips{display:flex;gap:12px;justify-content:center;margin-top:24px}
+.chip{width:50px;height:50px;border-radius:12px;background:var(--a);animation:p 1.6s infinite;box-shadow:0 0 25px var(--a)}
+.chip:nth-child(2){background:var(--b);box-shadow:0 0 25px var(--b);animation-delay:.25s}.chip:nth-child(3){background:var(--c);box-shadow:0 0 25px var(--c);animation-delay:.5s}.chip:nth-child(4){background:var(--d);box-shadow:0 0 25px var(--d);animation-delay:.75s}
+@keyframes p{50%{transform:scale(.65) rotate(12deg);opacity:.5}}
+section{max-width:980px;margin:0 auto;padding:46px 20px}
+.rev{opacity:0;transform:translateY(40px);transition:.8s cubic-bezier(.2,.8,.2,1)}.rev.show{opacity:1;transform:none}
+h2{font-size:1.9rem;margin:0 0 4px}h2 span{display:inline-block;background:linear-gradient(135deg,var(--a),var(--b));color:#06091a;padding:0 12px;border-radius:12px;margin-right:8px}
+.sub{color:var(--mut);margin:0 0 18px}
+.card{background:var(--card);border:1px solid #2a3567;border-radius:16px;padding:18px;margin:12px 0;backdrop-filter:blur(6px);transition:.3s}
+.card:hover{transform:translateY(-4px);border-color:var(--a);box-shadow:0 10px 30px #6c8cff33}
+.an{border-left:5px solid var(--d);background:#ffc85714;border-radius:0 14px 14px 0;padding:12px 16px;margin:14px 0}
+.an b{color:var(--d)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;border:1px solid #38458a;background:#1a2250;color:var(--tx);padding:9px 15px;border-radius:12px;transition:.25s}
+button:hover{background:#2b3880;transform:translateY(-2px)}button:active{transform:scale(.95)}button.on{background:linear-gradient(135deg,var(--a),#8b6cff);border-color:var(--a);color:#fff;box-shadow:0 0 18px #6c8cff88}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.box{display:inline-block;min-width:56px;padding:7px 11px;margin:4px;border-radius:9px;text-align:center;font-size:13px;font-weight:700;color:#06091a;animation:pop .5s backwards}
+.uc{background:var(--d)}.pe{background:var(--b);animation:pop .5s backwards,bt 1.2s ease-in-out infinite}
+@keyframes pop{from{transform:scale(0)}}@keyframes bt{50%{transform:translateY(-6px);box-shadow:0 8px 14px #22d3a655}}
+svg text{fill:var(--tx);font-size:13px;font-family:inherit}.hov{cursor:pointer;transition:.2s}.hov:hover{filter:brightness(1.5)}
+.cores{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.core{text-align:center;padding:14px;border-radius:14px;background:#0c1230;border:2px solid #2a3567;transition:.3s}
+.core.fl{animation:fl2 .6s}@keyframes fl2{30%{transform:scale(1.1);box-shadow:0 0 30px currentColor}}
+.st{font-size:2.8rem;font-weight:800}.M{color:var(--c)}.E{color:var(--d)}.S{color:var(--b)}.I{color:#6b7399}
+.leg{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:6px;font-size:14px;color:var(--mut)}
+#log{color:var(--d);min-height:50px;font-weight:600}
+.slots{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:560px}
+.sl{aspect-ratio:1.3;border-radius:7px;background:#0c1230;transition:background .4s,transform .4s}.sl.f{transform:scale(1.08)}
+input[type=range]{width:100%;accent-color:var(--b)}
+details{background:var(--card);border:1px solid #2a3567;border-radius:12px;padding:10px 16px;margin:8px 0}summary{cursor:pointer;font-weight:600}
+.big{font-size:2.6rem;font-weight:800;color:var(--b)}.meter{height:14px;border-radius:8px;background:#0c1230;overflow:hidden}.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--a),var(--b));transition:.5s}
+.flow{stroke-dasharray:6 6;animation:dash 1s linear infinite}@keyframes dash{to{stroke-dashoffset:-12}}
+.src li,small{color:var(--mut)}footer{text-align:center;color:var(--mut);padding:40px 20px}
+header{position:relative}#cv{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
+.card{position:relative;overflow:hidden}.card:before{content:"";position:absolute;inset:0;background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),#6c8cff38,transparent 60%);opacity:0;transition:.3s;pointer-events:none}.card:hover:before{opacity:1}
+.grid .card{transition:transform .15s,border-color .3s,box-shadow .3s}
+.dots{position:fixed;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;z-index:9}
+.dots a{width:12px;height:12px;border-radius:50%;background:#38458a;transition:.3s}.dots a.on{background:var(--b);transform:scale(1.7);box-shadow:0 0 14px var(--b)}
+@media(max-width:700px){.dots{display:none}}
+button{position:relative;overflow:hidden}.rp{position:absolute;border-radius:50%;background:#fff6;transform:scale(0);animation:rp .6s;pointer-events:none}@keyframes rp{to{transform:scale(4);opacity:0}}
+.opt{display:block;width:100%;text-align:left;margin:8px 0}.ok{background:#12805f!important;border-color:var(--b)!important}.no{background:#8a2a46!important;animation:sh .4s}
+@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+#cf{position:fixed;inset:0;pointer-events:none;z-index:30}.qb{height:8px;background:#0c1230;border-radius:6px;overflow:hidden;margin-bottom:14px}.qb i{display:block;height:100%;background:linear-gradient(90deg,var(--c),var(--d));transition:.5s}
+</style></head><body>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div id="bar"></div>
+<div class="dots"><a href="#s1"></a><a href="#s2"></a><a href="#s3"></a><a href="#s4"></a><a href="#s5"></a><a href="#quiz"></a></div><canvas id="cf"></canvas><nav><a href="#s1">4.1 Organizaciones</a><a href="#s2">4.2 SMP</a><a href="#s3">4.3 MESI</a><a href="#s4">4.4 Multihilo</a><a href="#s5">4.5 Clústeres</a><a href="#fuentes">Fuentes</a></nav>
+<header><canvas id="cv"></canvas><h1>Procesamiento paralelo</h1><div class="typ" id="typ"></div>
+<p>Cada tema empieza con una analogía sencilla. Haz clic, mueve y prueba todo: se aprende jugando.</p>
+<div class="chips"><div class="chip"></div><div class="chip"></div><div class="chip"></div><div class="chip"></div></div></header>
+
+<section id="s1" class="rev"><h2><span>4.1</span>Organizaciones de procesadores múltiples</h2>
+<p class="sub">¿Cómo se organizan varios procesadores para trabajar juntos?</p>
+<div class="an"><b>💡 En palabras simples:</b> Una cocina. Con un solo cocinero haces un platillo a la vez. Con varios cocineros puedes hacer muchos platillos, o el mismo platillo para muchos clientes. Flynn clasificó las "cocinas" así:</div>
+<div class="row" id="flynn"></div>
+<div class="card"><b id="fn" style="font-size:1.3rem"></b><p id="fd"></p>
+<div>🧠 Unidades de control (dan las órdenes): <span id="fuc"></span></div><div>⚙️ Elementos de procesamiento (trabajan): <span id="fpe"></span></div></div>
+<h3>4.1.2 Organizaciones paralelas</h3>
+<div class="grid">
+<div class="card"><b>🤝 SMP</b><br><small>Varios cocineros iguales comparten la misma despensa (memoria) y un solo jefe (el SO).</small></div>
+<div class="card"><b>🗺️ NUMA</b><br><small>También comparten despensa, pero tardan menos en alcanzar los ingredientes que están cerca.</small></div>
+<div class="card"><b>🏢 Clúster</b><br><small>Varias cocinas completas conectadas por teléfono, trabajando como un solo restaurante.</small></div>
+<div class="card"><b>📐 Vectorial</b><br><small>Una orden se aplica a toda una fila de ingredientes a la vez.</small></div></div>
+<div class="card"><b>🎚️ Prueba: ¿cuánto acelera agregar procesadores? (Ley de Amdahl)</b>
+<p>Parte del programa que se puede repartir: <b id="pv">90</b>%</p><input type="range" id="p" min="10" max="99" value="90">
+<p>Número de procesadores: <b id="nv">8</b></p><input type="range" id="n" min="1" max="64" value="8">
+<div class="big" id="sp"></div><div class="meter"><i id="mt0"></i></div>
+<small>Aunque pongas muchos procesadores, la parte que no se puede repartir te limita. Fórmula: 1 / ((1 − f) + f / N)</small></div></section>
+
+<section id="s2" class="rev"><h2><span>4.2</span>Multiprocesadores simétricos (SMP)</h2>
+<p class="sub">Todos los procesadores son iguales y comparten memoria y entrada/salida.</p>
+<div class="an"><b>💡 En palabras simples:</b> Es un banco con 4 cajeros (CPU) que usan la misma bóveda (memoria), pero solo hay <b>una puerta</b> (el bus). Si todos quieren entrar a la vez, hacen fila. Por eso cada cajero guarda copias en su escritorio (caché).</div>
+<div class="card"><svg viewBox="0 0 700 300" width="100%">
+<g id="smp"></g><circle id="pk" r="8" fill="#ffc857" opacity="0" style="filter:drop-shadow(0 0 8px #ffc857)"/>
+<path d="M95 70V90M255 70V90M415 70V90M575 70V90M95 126V170M255 126V170M415 126V170M575 126V170M200 192V230M470 192V230" stroke="#a3acd6" stroke-width="2"/>
+<g class="hov" onclick="tip('🚌 Bus: la única "puerta" compartida. Mira los puntos amarillos: son datos viajando. Solo uno usa el bus a la vez, por eso limita cuántos CPU puedes agregar.')"><rect x="30" y="170" width="610" height="22" rx="6" fill="#ff6b8b"/><text x="270" y="186" style="fill:#06091a;font-weight:700">BUS DEL SISTEMA</text></g>
+<circle r="5" fill="#ffc857"><animateMotion path="M60 181H610" dur="3s" repeatCount="indefinite"/></circle>
+<circle r="5" fill="#ffc857"><animateMotion path="M610 181H60" dur="3s" begin="1s" repeatCount="indefinite"/></circle>
+<circle r="5" fill="#ffc857"><animateMotion path="M60 181H610" dur="3s" begin="2s" repeatCount="indefinite"/></circle>
+<g class="hov" onclick="tip('🧮 Memoria principal: la bóveda compartida. Todos los CPU ven los mismos datos.')"><rect x="120" y="230" width="160" height="50" rx="10" fill="#22d3a6"/><text x="150" y="260" style="fill:#06091a;font-weight:700">Memoria principal</text></g>
+<g class="hov" onclick="tip('🖨️ Entrada/Salida: discos, red y dispositivos, accesibles por todos.')"><rect x="400" y="230" width="160" height="50" rx="10" fill="#22d3a6"/><text x="450" y="260" style="fill:#06091a;font-weight:700">Entrada/Salida</text></g></svg>
+<div class="row" id="rq"></div><p id="tip" style="color:var(--d);min-height:52px;font-weight:600">👆 Toca un componente del diagrama.</p></div>
+<h3>4.2.2 Consideraciones de diseño del sistema operativo</h3>
+<details><summary>🔀 Procesos y hilos simultáneos</summary>El SO debe poder ejecutar sus propias rutinas en varios CPU a la vez, como un jefe que atiende en varias ventanillas.</details>
+<details><summary>🔒 Sincronización</summary>Si dos CPU cambian el mismo dato al mismo tiempo, se arruina. Se usan candados (locks) para que entre uno a la vez, como un baño con llave.</details>
+<details><summary>🧩 Gestión de memoria</summary>Debe repartir la memoria entre todos los CPU y mantener consistentes sus tablas de páginas.</details>
+<details><summary>📋 Planificación</summary>Cualquier CPU libre toma la siguiente tarea de la fila; hay que evitar que dos tomen la misma.</details>
+<details><summary>🛡️ Fiabilidad</summary>Si un CPU falla, el sistema debe seguir funcionando con menos potencia, sin apagarse.</details></section>
+
+<section id="s3" class="rev"><h2><span>4.3</span>Coherencia de caché y protocolo MESI</h2>
+<p class="sub">¿Qué pasa cuando dos cachés tienen copia del mismo dato?</p>
+<div class="an"><b>💡 En palabras simples:</b> Tres estudiantes copian la misma fórmula de un pizarrón (la memoria). Si uno la corrige en su cuaderno, los demás tienen una versión <b>vieja</b>. MESI es el reglamento que dice a quién avisar para que nadie estudie con datos incorrectos.</div>
+<div class="card"><div class="cores" id="cores"></div><div class="row" style="margin-top:12px" id="mb"></div><p id="log"></p>
+<div class="leg"><span><b class="M">M</b> Modificado: solo yo lo tengo y lo cambié</span><span><b class="E">E</b> Exclusivo: solo yo lo tengo, está limpio</span><span><b class="S">S</b> Compartido: varios lo tenemos</span><span><b class="I">I</b> Inválido: mi copia ya no sirve</span></div>
+<small>Prueba: Núcleo 1 lee → Núcleo 2 lee → Núcleo 1 escribe. Observa qué le pasa al Núcleo 2.</small></div>
+<div class="grid"><div class="card"><b>4.3.1 Soluciones de software</b><br><small>El compilador y el SO evitan poner datos compartidos en caché. Es simple, pero más lento.</small></div>
+<div class="card"><b>4.3.2 Soluciones de hardware</b><br><small><b>Directorio:</b> una libreta central anota quién tiene cada dato. <b>Snoopy:</b> cada caché "escucha" el bus y reacciona (invalida o actualiza su copia).</small></div></div></section>
+
+<section id="s4" class="rev"><h2><span>4.4</span>Multiprocesos y multiprocesadores de chips</h2>
+<p class="sub">Cómo aprovechar cada instante del procesador usando varios hilos.</p>
+<div class="an"><b>💡 En palabras simples:</b> Un cocinero que pone algo al horno y se queda mirando el reloj pierde tiempo. Con varios hilos, mientras uno espera, el cocinero atiende otro pedido. Cada cuadro es "un espacio de trabajo en un instante": <b>color = trabajo hecho</b>, <b>oscuro = tiempo perdido</b>.</div>
+<div class="row" id="mt"></div>
+<div class="card"><b id="mtn" style="font-size:1.2rem"></b><p id="mtd"></p><div class="slots" id="slots"></div><p>Aprovechamiento: <b id="use"></b></p></div>
+<div class="grid"><div class="card"><b>4.4.1 Hilos implícitos</b><br><small>Los saca el hardware o el compilador de un programa normal, sin que el programador haga nada.</small></div>
+<div class="card"><b>Hilos explícitos</b><br><small>El programador los crea a propósito (por ejemplo, con threads) para repartir el trabajo.</small></div></div></section>
+
+<section id="s5" class="rev"><h2><span>4.5</span>Clústeres</h2>
+<p class="sub">Computadoras completas que trabajan como una sola.</p>
+<div class="an"><b>💡 En palabras simples:</b> Una cadena de sucursales conectadas por internet. Si una sucursal cierra, las demás siguen atendiendo. Pulsa el botón rojo para comprobarlo.</div>
+<div class="row" id="cl"></div>
+<div class="card"><svg viewBox="0 0 700 230" width="100%"><rect x="40" y="18" width="620" height="22" rx="6" fill="#ff6b8b"/><text x="250" y="34" style="fill:#06091a;font-weight:700">RED DE ALTA VELOCIDAD</text><g id="nodes"></g></svg>
+<p id="cld" style="color:var(--d);font-weight:600"></p><button id="kill" style="border-color:var(--c)">💥 Simular falla de un nodo</button></div>
+<div class="grid"><div class="card"><b>4.5.2 Problemas de diseño del SO</b><ul><li>Qué hacer cuando un nodo falla</li><li>Repartir la carga equitativamente</li><li>Dividir el cálculo entre nodos</li></ul></div>
+<div class="card"><b>4.5.3 Arquitectura del clúster</b><br><small>Cada nodo es una computadora completa (memoria y SO propios). Un software intermedio los muestra como un solo sistema. Ventajas: crece poco a poco, alta disponibilidad y buen precio.</small></div></div></section>
+
+<section id="quiz" class="rev"><h2><span>🎮</span>Ponte a prueba</h2><p class="sub">5 preguntas, una por tema. ¿Cuántas aciertas?</p><div class="card" id="qz"></div></section>
+<section id="fuentes" class="rev"><h2>Fuentes de información</h2><ul class="src">
+<li>Stallings, W. (2016). <i>Computer Organization and Architecture</i> (10.ª ed.). Pearson. (Capítulo de procesamiento paralelo.)</li>
+<li>Hennessy, J. L., y Patterson, D. A. (2019). <i>Computer Architecture: A Quantitative Approach</i> (6.ª ed.). Morgan Kaufmann.</li>
+<li>Flynn, M. J. (1972). Some computer organizations and their effectiveness. <i>IEEE Transactions on Computers, C-21</i>(9), 948-960.</li>
+<li>Papamarcos, M. S., y Patel, J. H. (1984). A low-overhead coherence solution for multiprocessors with private cache memories. <i>Proceedings of the 11th ISCA</i>, 348-354.</li>
+<li>Amdahl, G. M. (1967). Validity of the single processor approach to achieving large-scale computing capabilities. <i>AFIPS Conference Proceedings</i>, 30, 483-485.</li></ul></section>
+<footer>Arquitectura de Computadoras · Unidad 4 · Procesamiento paralelo</footer>
+<script>
+const $=id=>document.getElementById(id);
+const io=new IntersectionObserver(e=>e.forEach(x=>x.isIntersecting&&x.target.classList.add('show')),{threshold:.08});
+document.querySelectorAll('.rev').forEach(s=>io.observe(s));
+addEventListener('scroll',()=>{$('bar').style.width=scrollY/(document.body.scrollHeight-innerHeight)*100+'%'});
+// Texto que se escribe solo
+const fr=['Muchos procesadores, un solo objetivo','Hacer más cosas al mismo tiempo','De un chip a un clúster completo'];let fi=0,ci=0,del=false;
+(function ty(){const t=fr[fi];ci+=del?-1:1;$('typ').textContent=t.slice(0,ci);let w=del?30:70;
+if(!del&&ci==t.length){del=true;w=1500}else if(del&&ci==0){del=false;fi=(fi+1)%fr.length;w=400}setTimeout(ty,w)})();
+function btns(box,items,fn){box.innerHTML='';items.forEach((t,i)=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>{[...box.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');fn(i)};box.appendChild(b)});box.firstChild.click()}
+// 4.1
+const FL=[["SISD","Una orden, un dato. Un cocinero haciendo un platillo. Es la computadora clásica de un solo núcleo.",1,1],
+["SIMD","Una orden para muchos datos. Un chef grita \"¡corten!\" y todos cortan su propia cebolla. Así funcionan las GPU.",1,4],
+["MISD","Varias órdenes sobre el mismo dato. Casi no se usa; sirve en sistemas que se vigilan a sí mismos.",4,1],
+["MIMD","Cada cocinero sigue su propia receta con sus propios ingredientes. Es lo más común: SMP, NUMA y clústeres.",4,4]];
+btns($('flynn'),FL.map(f=>f[0]),i=>{const f=FL[i];$('fn').textContent=f[0];$('fd').textContent=f[1];
+$('fuc').innerHTML=Array.from({length:f[2]},(_,k)=>`<span class="box uc" style="animation-delay:${k*.1}s">UC</span>`).join('');
+$('fpe').innerHTML=Array.from({length:f[3]},(_,k)=>`<span class="box pe" style="animation-delay:${k*.1}s,${k*.2}s">PE</span>`).join('')});
+function amd(){const f=$('p').value/100,n=+$('n').value,s=1/((1-f)+f/n);$('pv').textContent=$('p').value;$('nv').textContent=n;$('sp').textContent=s.toFixed(2)+'× más rápido';$('mt0').style.width=Math.min(100,s/(1/(1-f))*100)+'%'}
+$('p').oninput=$('n').oninput=amd;amd();
+// 4.2
+function tip(t){$('tip').textContent=t}
+let h='';[40,200,360,520].forEach((x,k)=>{h+=`<g class="hov" onclick="tip('🧠 CPU ${k+1}: ejecuta instrucciones. En SMP todos son iguales y cualquiera puede hacer cualquier tarea.')"><rect x="${x}" y="20" width="110" height="50" rx="10" fill="#6c8cff"/><text x="${x+30}" y="50" style="font-weight:700">CPU ${k+1}</text></g>
+<g class="hov" onclick="tip('📒 Caché: el escritorio privado de cada CPU. Evita ir tanto al bus, pero causa el problema de coherencia (sección 4.3).')"><rect x="${x}" y="90" width="110" height="36" rx="10" fill="#ffc857"/><text x="${x+30}" y="113" style="fill:#06091a;font-weight:700">Caché</text></g>`});$('smp').innerHTML=h;
+// 4.3 MESI
+const N=3,MSG='Estado inicial: ninguna caché tiene el dato X.';let st=Array(N).fill('I'),ch=-1;
+function draw(){$('cores').innerHTML=st.map((s,i)=>`<div class="core ${s} ${i==ch?'fl':''}" style="border-color:currentColor"><div style="color:var(--tx)">Núcleo ${i+1}</div><div class="st">${s}</div></div>`).join('');ch=-1}
+function rd(i){const o=st.filter((_,j)=>j!=i);let m;ch=i;
+if(st[i]!='I')m=`Núcleo ${i+1} lee X: ya tenía copia válida. No pasa nada, es rápido.`;
+else if(o.includes('M')){st=st.map((s,j)=>s=='M'&&j!=i?'S':s);st[i]='S';m=`Núcleo ${i+1} no tenía X. Otro tenía la versión nueva (M): la guarda en memoria y ahora ambos la comparten (S).`}
+else if(o.some(s=>s!='I')){st=st.map((s,j)=>j!=i&&s!='I'?'S':s);st[i]='S';m=`Núcleo ${i+1} lee X de memoria. Como ya había copias, todos quedan en S.`}
+else{st[i]='E';m=`Núcleo ${i+1} lee X de memoria. Nadie más la tiene: queda en E (exclusivo).`}
+$('log').textContent=m;draw()}
+function wr(i){let m;ch=i;
+if(st[i]=='M')m=`Núcleo ${i+1} escribe: ya era el único con cambios (M). No molesta a nadie.`;
+else if(st[i]=='E')m=`Núcleo ${i+1} escribe: E pasa a M sin avisar a nadie, porque nadie más la tiene.`;
+else{st=st.map((s,j)=>j!=i?'I':s);st[i]='M';m=`Núcleo ${i+1} escribe: avisa por el bus y las demás copias se invalidan (I). Ahora solo él tiene la versión correcta (M).`}
+$('log').textContent=m;draw()}
+for(let i=0;i<N;i++)[['Leer',rd],['Escribir',wr]].forEach(([t,f])=>{const b=document.createElement('button');b.textContent=`Núcleo ${i+1}: ${t}`;b.onclick=()=>f(i);$('mb').appendChild(b)});
+const rs=document.createElement('button');rs.textContent='🔄 Reiniciar';rs.onclick=()=>{st=Array(N).fill('I');$('log').textContent=MSG;draw()};$('mb').appendChild(rs);$('log').textContent=MSG;draw();
+// 4.4
+const COL=['#6c8cff','#22d3a6','#ff6b8b','#ffc857'],X=(r,c)=>(r*3+c*5)%4<2;
+const MT=[["Un solo hilo","Un único trabajo no llena todos los espacios: espera datos y quedan huecos.",(r,c)=>X(r,c)?0:null],
+["Entrelazado (grano fino)","Cada instante atiende a un hilo distinto, así las esperas de uno se tapan con otro.",(r,c)=>(r+c)%4<2?c%4:null],
+["Por bloques (grano grueso)","Un hilo trabaja hasta que se atora (por ejemplo, espera un dato) y entonces entra otro.",(r,c)=>X(r,c)?(c<4?0:1):null],
+["SMT (simultáneo)","Varios hilos comparten los espacios en el mismo instante. Es el mejor aprovechamiento.",(r,c)=>(r*3+c*5)%7==0?null:(r+c)%4],
+["Multiprocesador en un chip","Dos núcleos completos en un mismo chip, cada uno con su hilo.",(r,c)=>(r*3+c*5)%4<3?(r<2?0:1):null]];
+btns($('mt'),MT.map(m=>m[0]),i=>{$('mtn').textContent=MT[i][0];$('mtd').textContent=MT[i][1];
+let g='',n=0;for(let r=0;r<4;r++)for(let c=0;c<8;c++)g+=`<div class="sl" data-c="${c}" data-t="${MT[i][2](r,c)}"></div>`;$('slots').innerHTML=g;
+document.querySelectorAll('.sl').forEach(e=>{const t=e.dataset.t;if(t!='null'){n++;setTimeout(()=>{e.style.background=COL[t];e.classList.add('f')},e.dataset.c*90)}});
+$('use').textContent=Math.round(n/32*100)+'%'});
+// 4.5
+const CL=[["Espera activa","Un servidor trabaja y otro lo vigila. Si falla, el de reserva toma su lugar. Sencillo, pero un servidor se desperdicia."],
+["Sin compartir disco","Cada nodo tiene sus propios discos. Escala muy bien porque nadie se estorba."],
+["Disco compartido","Todos los nodos usan el mismo almacenamiento (SAN) conectado por la red."]];
+let ci2=0,dead=-1;
+function rc(){let g='',a=[0,1,2,3].filter(k=>k!=dead&&!(ci2==0&&k>1&&dead<0&&0));
+for(let k=0;k<4;k++){const x=50+k*160,d=k==dead,sb=ci2==0&&k==1&&dead!=0;
+g+=`<line class="flow" x1="${x+55}" y1="40" x2="${x+55}" y2="90" stroke="${d?'#ff6b8b':'#22d3a6'}" stroke-width="3"/><rect x="${x}" y="90" width="110" height="50" rx="10" fill="${d?'#7a2438':sb?'#33407a':'#6c8cff'}"/><text x="${x+18}" y="120" style="font-weight:700">${d?'💥 Nodo '+(k+1):'Nodo '+(k+1)}</text>`;
+if(ci2==1)g+=`<line x1="${x+55}" y1="140" x2="${x+55}" y2="165" stroke="#a3acd6"/><rect x="${x+20}" y="165" width="70" height="30" rx="8" fill="#ffc857"/><text x="${x+36}" y="185" style="fill:#06091a;font-weight:700">Disco</text>`;
+if(ci2==2)g+=`<line x1="${x+55}" y1="140" x2="${x+55}" y2="165" stroke="#a3acd6"/>`}
+if(ci2==2)g+=`<rect x="150" y="165" width="400" height="34" rx="10" fill="#ffc857"/><text x="260" y="187" style="fill:#06091a;font-weight:700">Almacenamiento compartido (SAN)</text>`;
+$('nodes').innerHTML=g;
+$('cld').textContent=CL[ci2][1]+(dead>=0?` ⚠️ El nodo ${dead+1} falló: el clúster sigue funcionando y los otros nodos reparten su trabajo.`:'')}
+btns($('cl'),CL.map(c=>c[0]),i=>{ci2=i;dead=-1;$('kill').textContent='💥 Simular falla de un nodo';rc()});
+$('kill').onclick=()=>{dead=dead<0?(ci2==0?0:2):-1;$('kill').textContent=dead<0?'💥 Simular falla de un nodo':'🔧 Reparar nodo';rc()};
+
+// Fondo de partículas (red de procesadores) que reacciona al mouse
+(()=>{const c=$('cv'),x=c.getContext('2d'),P=[],m={x:-999,y:-999};let W,H;
+function rs(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight}rs();addEventListener('resize',rs);
+for(let i=0;i<46;i++)P.push({x:Math.random()*W,y:Math.random()*H,vx:Math.random()-.5,vy:Math.random()-.5});
+c.parentNode.addEventListener('mousemove',e=>{const r=c.getBoundingClientRect();m.x=e.clientX-r.left;m.y=e.clientY-r.top});
+(function f(){x.clearRect(0,0,W,H);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+const dx=m.x-p.x,dy=m.y-p.y,d=Math.hypot(dx,dy);if(d<140){p.x+=dx*.02;p.y+=dy*.02}
+x.fillStyle='#22d3a6';x.beginPath();x.arc(p.x,p.y,2.5,0,7);x.fill()});
+for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){const d=Math.hypot(P[i].x-P[j].x,P[i].y-P[j].y);if(d<110){x.strokeStyle=`rgba(108,140,255,${1-d/110})`;x.beginPath();x.moveTo(P[i].x,P[i].y);x.lineTo(P[j].x,P[j].y);x.stroke()}}
+requestAnimationFrame(f)})()})();
+// Luz que sigue al mouse e inclinación 3D en tarjetas
+document.querySelectorAll('.card').forEach(k=>k.addEventListener('mousemove',e=>{const r=k.getBoundingClientRect(),px=(e.clientX-r.left)/r.width,py=(e.clientY-r.top)/r.height;
+k.style.setProperty('--mx',px*100+'%');k.style.setProperty('--my',py*100+'%');
+if(k.parentNode.classList.contains('grid'))k.style.transform=`perspective(600px) rotateY(${(px-.5)*14}deg) rotateX(${(.5-py)*14}deg) translateY(-4px)`}));
+document.querySelectorAll('.grid .card').forEach(k=>k.addEventListener('mouseleave',()=>k.style.transform=''));
+// Ondas al hacer clic en botones
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height),s=document.createElement('i');s.className='rp';
+s.style.cssText=`width:${d}px;height:${d}px;left:${e.clientX-r.left-d/2}px;top:${e.clientY-r.top-d/2}px`;b.appendChild(s);setTimeout(()=>s.remove(),600)});
+// Puntos de navegación laterales
+const dots=[...document.querySelectorAll('.dots a')];
+new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)dots.forEach(d=>d.classList.toggle('on',d.getAttribute('href')=='#'+x.target.id))}),{rootMargin:'-45% 0px -45% 0px'}).observe&&['s1','s2','s3','s4','s5','quiz'].forEach(i=>{});
+const io2=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)dots.forEach(d=>d.classList.toggle('on',d.getAttribute('href')=='#'+x.target.id))}),{rootMargin:'-45% 0px -45% 0px'});
+['s1','s2','s3','s4','s5','quiz'].forEach(i=>io2.observe($(i)));
+// SMP: envía datos por el bus
+function req(k,delay=0){const x=95+160*k,mx=200,p=$('pk');
+p.animate([{transform:`translate(${x}px,126px)`,opacity:1},{transform:`translate(${x}px,181px)`,opacity:1},{transform:`translate(${mx}px,181px)`,opacity:1},{transform:`translate(${mx}px,235px)`,opacity:1},{transform:`translate(${mx}px,181px)`,opacity:1},{transform:`translate(${x}px,181px)`,opacity:1},{transform:`translate(${x}px,126px)`,opacity:0}],{duration:2400,delay,easing:'ease-in-out'})}
+for(let k=0;k<4;k++){const b=document.createElement('button');b.textContent=`CPU ${k+1} pide un dato`;b.onclick=()=>{req(k);tip(`CPU ${k+1} baja por el bus, llega a la memoria y regresa con el dato. Mientras viaja, el bus está ocupado.`)};$('rq').appendChild(b)}
+const all=document.createElement('button');all.textContent='⚡ Los 4 piden a la vez';all.style.borderColor='var(--c)';
+all.onclick=()=>{[0,1,2,3].forEach(k=>req(k,k*900));tip('Los 4 CPU piden al mismo tiempo, pero el bus es uno solo: se forma una fila. Ese es el cuello de botella del SMP.')};$('rq').appendChild(all);
+// Quiz con confeti
+const Q=[["En la clasificación de Flynn, ¿qué tipo describe a una GPU?",["SISD","SIMD","MISD","MIMD"],1,"SIMD: una instrucción se aplica a muchos datos a la vez."],
+["En un SMP, ¿qué componente limita cuántos procesadores puedes agregar?",["El bus compartido","La caché","El teclado","La pantalla"],0,"Solo un procesador usa el bus a la vez, así se forma la fila."],
+["Un núcleo escribe un dato que otros tenían en estado S (MESI). ¿En qué estado quedan las otras copias?",["M","E","I","S"],2,"Se invalidan (I) y solo el que escribió queda en M."],
+["¿Qué técnica emite instrucciones de varios hilos en el mismo ciclo?",["Entrelazado","SMT","Por bloques","Un solo hilo"],1,"SMT (multihilo simultáneo) mezcla hilos dentro del mismo instante."],
+["Si un nodo de un clúster falla, ¿qué debería pasar?",["Se apaga todo","Los demás nodos siguen y reparten su trabajo","Se pierden todos los datos","Nada, no importa"],1,"Esa es la alta disponibilidad: el sistema sigue funcionando."]];
+let qi=0,sc=0;
+function conf(){const c=$('cf'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;const A=Array.from({length:150},()=>({x:innerWidth/2,y:innerHeight/2,vx:(Math.random()-.5)*18,vy:Math.random()*-16,c:COL[Math.floor(Math.random()*4)]}));let t=0;
+(function f(){x.clearRect(0,0,c.width,c.height);A.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.35;x.fillStyle=p.c;x.fillRect(p.x,p.y,8,8)});if(t++<110)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height)})()}
+function qr(){const q=$('qz');
+if(qi>=Q.length){q.innerHTML=`<div class="big">${sc} / ${Q.length}</div><p>${sc>=4?'🏆 ¡Excelente! Dominas el procesamiento paralelo.':sc>=3?'👍 Muy bien, repasa los temas donde fallaste.':'📚 Repasa las secciones y vuelve a intentarlo.'}</p><button id="rt">🔄 Intentar de nuevo</button>`;$('rt').onclick=()=>{qi=0;sc=0;qr()};if(sc>=4)conf();return}
+const [t,o,a,e]=Q[qi];q.innerHTML=`<div class="qb"><i style="width:${qi/Q.length*100}%"></i></div><b>${qi+1}. ${t}</b>${o.map((v,i)=>`<button class="opt" data-i="${i}">${v}</button>`).join('')}<p id="qf" style="color:var(--d);font-weight:600"></p>`;
+q.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;q.querySelectorAll('.opt').forEach(x=>x.disabled=true);
+if(i==a){b.classList.add('ok');sc++;$('qf').textContent='✅ ¡Correcto! '+e}else{b.classList.add('no');q.querySelectorAll('.opt')[a].classList.add('ok');$('qf').textContent='❌ '+e}
+const n=document.createElement('button');n.textContent=qi==Q.length-1?'Ver resultado →':'Siguiente →';n.onclick=()=>{qi++;qr()};q.appendChild(n)})}
+qr();
+</script></body></html>
